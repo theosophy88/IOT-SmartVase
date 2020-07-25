@@ -48,7 +48,8 @@ const int lightPin = 4; /* set Digital port 4 to set Lighting relay switch*/
 /*const int tempPin = 2;  set Digital port 5 to set temperture with a 4.7 K ohm resistor*/
 const int Resetpin = 2; /* Set Digital port 2 to restart Arduino */
 int moisture_percentage; /*for save humidity percentage */
-
+int humidPPin = 10;
+int lightingPPin = 9;
 //******************************************************* Temp Sensor aconfig ****************************************************
 //   for setup pin for get serial of temperture sensors
 // Data wire is plugged into pin 2 on the Arduino
@@ -78,7 +79,11 @@ void setup() {
   pinMode(lightPin, OUTPUT);
   digitalWrite(lightPin, LOW);
   digitalWrite(pumprelayPin, LOW);
-
+  pinMode(humidPPin, OUTPUT);
+  pinMode(lightingPPin, OUTPUT);
+  digitalWrite(humidPPin, LOW);
+  digitalWrite(lightingPPin, LOW);
+    
   // Initialize the I2C bus (BH1750 library doesn't do this automatically)
   // On esp8266 devices you can select SCL and SDA pins using Wire.begin(D4, D3);
   //*********************************************** setup I2C ID and recive event **************************************************
@@ -126,17 +131,17 @@ void loop() {
   // get room light
   int roomlight = lightMeter.readLightLevel();
   //get Radiant light analog value
-  int flwlightvalue = analogRead(flwlightsens);
+  int flwlightvalue = getlightingstat();
   makeweb(temp, roomlight, soilhumid, 1, 1);
   ploop++;
   Serial.println(ploop);
-  if (ploop <= 30) {
+  if (ploop <= 10) {
     showdisplay(1);
-  } else if (ploop <= 60) {
+  } else if (ploop <= 15) {
     showdisplay(2);
-  } else if (ploop <= 90) {
+  } else if (ploop <= 17) {
     showdisplay(3);
-  } else if (ploop <= 120) {
+  } else if (ploop <= 19) {
     showdisplay(4);
     ploop = 0;
   }
@@ -161,15 +166,33 @@ void loop() {
   delay(1000);
 }
 
+int getlightingstat(){
+  pinMode(lightingPPin, OUTPUT);
+  digitalWrite(lightingPPin, HIGH);
+  delay(50);
+  int lightedstat = analogRead(flwlightsens);
+  Serial.println(lightedstat); 
+  digitalWrite(lightingPPin, LOW);
+  pinMode(lightingPPin, INPUT);
+  return lightedstat;
+}
+
 int soildata() {
   float sensor_analog;
-
+  pinMode(humidPPin, OUTPUT);
+  digitalWrite(humidPPin, HIGH);
+  delay(1000);
   sensor_analog = analogRead(soil_pin);
   /* for arduino uno betwen 300 and 625 , for arduino pro mini betwen 440 and 925*/
   moisture_percentage = 100 - ( ( (sensor_analog - 440) * 100 ) / 495 );
   if (moisture_percentage > 100) {
     moisture_percentage = 100;
   }
+
+
+  digitalWrite(humidPPin, LOW);
+  pinMode(humidPPin, INPUT);
+  
   return moisture_percentage;
 }
 
