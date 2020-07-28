@@ -18,7 +18,6 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 int ploop;
 boolean boot;
-String getsoftserial;
 /* /////////////////////////// Public status Variables \\\\\\\\\\\\\\\\\\\\*/
 String svip;
 String stime;
@@ -83,21 +82,52 @@ const unsigned char sunicon [] PROGMEM = {
   0x10, 0x00, 0x80, 0x00, 0x20, 0x00, 0x00, 0x20, 0x00, 0x00, 0x20, 0x00
 };
 
+const unsigned char warningico [] = {
+0x14, 0x00, 0x14, 0x00, 
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x50, 0x00, 0x00, 0x00, 0x00, 0x00, 0x60, 0x60,
+0x60, 0x60, 
+};
+
+const unsigned char warning [] = {
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x00, 
+  0x01, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0xf0, 
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0xf8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0f, 0xfc, 0x00, 0x00, 
+  0x00, 0x00, 0x00, 0x0f, 0xfc, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1f, 0x3e, 0x00, 0x00, 0x00, 0x00, 
+  0x00, 0x1f, 0x3e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3e, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3e, 
+  0x1f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7c, 0x0f, 0x80, 0x00, 0x00, 0x00, 0x00, 0xf8, 0x07, 0xc0, 
+  0x00, 0x00, 0x00, 0x00, 0xf8, 0x07, 0xc0, 0x00, 0x00, 0x00, 0x01, 0xf1, 0xc3, 0xe0, 0x00, 0x00, 
+  0x00, 0x01, 0xf1, 0xe3, 0xe0, 0x00, 0x00, 0x00, 0x03, 0xe1, 0xe1, 0xf0, 0x00, 0x00, 0x00, 0x07, 
+  0xe1, 0xe1, 0xf0, 0x00, 0x00, 0x00, 0x07, 0xc1, 0xe0, 0xf8, 0x00, 0x00, 0x00, 0x0f, 0x81, 0xe0, 
+  0x7c, 0x00, 0x00, 0x00, 0x0f, 0x81, 0xe0, 0x7c, 0x00, 0x00, 0x00, 0x1f, 0x01, 0xe0, 0x3e, 0x00, 
+  0x00, 0x00, 0x1f, 0x01, 0xe0, 0x3e, 0x00, 0x00, 0x00, 0x3e, 0x01, 0xe0, 0x1f, 0x00, 0x00, 0x00, 
+  0x7e, 0x01, 0xe0, 0x1f, 0x00, 0x00, 0x00, 0x7c, 0x01, 0xe0, 0x0f, 0x80, 0x00, 0x00, 0xf8, 0x01, 
+  0xe0, 0x07, 0xc0, 0x00, 0x00, 0xf8, 0x00, 0xc0, 0x07, 0xc0, 0x00, 0x01, 0xf0, 0x00, 0x00, 0x03, 
+  0xe0, 0x00, 0x01, 0xf0, 0x00, 0x00, 0x03, 0xe0, 0x00, 0x03, 0xe0, 0x01, 0xe0, 0x01, 0xf0, 0x00, 
+  0x07, 0xc0, 0x01, 0xe0, 0x01, 0xf0, 0x00, 0x07, 0xc0, 0x03, 0xf0, 0x00, 0xf8, 0x00, 0x0f, 0x80, 
+  0x03, 0xf0, 0x00, 0x7c, 0x00, 0x0f, 0x80, 0x01, 0xe0, 0x00, 0x7c, 0x00, 0x1f, 0x00, 0x00, 0x00, 
+  0x00, 0x3e, 0x00, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x3e, 0x00, 0x3e, 0x00, 0x00, 0x00, 0x00, 0x1f, 
+  0x00, 0x3f, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0x80, 0x7f, 
+  0xff, 0xff, 0xff, 0xff, 0xff, 0x80, 0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0x80, 0x00, 0x00, 0x00, 
+  0x00, 0x00, 0x00, 0x00
+};
 
 String pubcommand;
 int flwlightvalue;
 int i; /* for counter*/
 int counter;
 int minimum_humidity = 50;
-float minimum_light = 500;
-
+float minimum_light = 300;
+boolean warningstat = false;
+boolean shiningstat = false;
 
 BH1750 lightMeter;
 const int flinepixel = 16; /*first line pixel for LED*/
 const int soil_pin = A0;  /* Soil moisture sensor O/P pin */
 const int flwlightsens = A0; /* set A1 pin for geting flower Light resived*/
-const int pumprelayPin = 3; /* set Digital port 3 to set waterpump relay switch */
-const int lightPin = 4; /* set Digital port 4 to set Lighting relay switch*/
+const int pumprelayPin = 12; /* set Digital port 3 to set waterpump relay switch */
+const int lightPin = 14; /* set Digital port 4 to set Lighting relay switch*/
 /*const int tempPin = 2;  set Digital port 5 to set temperture with a 4.7 K ohm resistor*/
 const int Resetpin = 2; /* Set Digital port 2 to restart Arduino */
 int moisture_percentage; /*for save humidity percentage */
@@ -162,9 +192,6 @@ void setup() {
   display.setTextColor(WHITE);
   display.clearDisplay();
 
-  /* setup Wifi Module */
-  //SoftwareSerial toESP(8, 9);//12==>TX , 13==>RX
-  //toESP.begin(115200);
   String WifiName = "3rfan"; //for join to wifi modem
   String WifiPass = "3rfan3056";
 //////////////////////////////////////////////////////// load First Boot Functions \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -175,7 +202,9 @@ firstboot();
 
 
 void loop() {
+  
 
+  
   // get soil moistor
   int soilhumid = soildata();
   // get room Temp
@@ -185,7 +214,10 @@ void loop() {
   int roomlight = getroomlight();
   //get Radiant light analog value
   int flwlightvalue = getlightingstat();
-  makeweb(temp, roomlight, soilhumid, 1, 1);
+  
+  makeweb(temp, roomlight, soilhumid, 1, flwlightvalue);
+  
+
   ploop++;
   Serial.println(ploop);
   if (ploop <= 10) {
@@ -200,6 +232,17 @@ void loop() {
   }
 
 
+  if (roomlight <= minimum_light && !shiningstat){
+    shiningstat=shining(true);
+    if (getlightingstat() < 600){      
+      shiningalert();
+    }else if(roomlight > minimum_light && shiningstat){
+      shining(false);
+    }
+  }
+  if(shiningstat && flwlightvalue < 600){
+    shiningalert();
+  }
 
   //Serial.print("Moisture Percentage = ");
   //Serial.println(moisture_percentage);
@@ -233,6 +276,7 @@ int getlightingstat(){
   Serial.println(lightedstat); 
   digitalWrite(lightingPPin, LOW);
   pinMode(lightingPPin, INPUT);
+  
   return lightedstat;
 }
 
@@ -253,6 +297,16 @@ int soildata() {
   pinMode(humidPPin, INPUT);
   
   return moisture_percentage;
+}
+
+boolean shining(boolean switchbtn){
+  if (switchbtn){
+    digitalWrite(lightPin, HIGH);
+  }else{
+    digitalWrite(lightPin, HIGH);
+  }
+  return true;
+    
 }
 
 void irrigation() {
@@ -283,11 +337,17 @@ int gettemp() {
   return sensors.getTempCByIndex(0);
 }
 
+void shiningalert(){
+  if (shining(true) && getlightingstat()<600){
+    showdisplay(4);
+  }
+}
+
 void showdisplay(int page) {
   int retry = 0;
-  int soilhumid;
+  /*int soilhumid;
   int roomlight;
-  int temp;
+  int temp;*/
   String stime;
   display.clearDisplay();
   switch (page) {
@@ -308,7 +368,7 @@ void showdisplay(int page) {
       }
       return;
     case 1:
-
+/*
       // get soil moistor
       soilhumid = soildata();
       // get room Temp
@@ -317,14 +377,17 @@ void showdisplay(int page) {
       // get room light
       roomlight = getroomlight();
       //get Radiant light analog value
-      flwlightvalue = getlightingstat();
-      page1(temp, roomlight, soilhumid, flwlightvalue, nowtime());
+      flwlightvalue = getlightingstat(); */
+      page1(gettemp(), getroomlight(), soildata(), getlightingstat(), nowtime());
       return;
     case 2:
       page2(nowtime());
       return;
     case 3:
       page3();
+      return;
+    case 4:
+      page4();
       return;
   }
 }
@@ -426,7 +489,6 @@ void page1(int ltemp, int lroomlight, int lsoilhumid, int lflwlightvalue, String
 
 void page2(String stime) {
   display.clearDisplay();
-  display.stopscroll();
   // ========================================= Line 1 show Wifi Icon color yellow
   display.drawBitmap(0, 0, wifiicon, 16, 16, 1);
   // ========================================= Line 1 show Wifi Icon color yellow
@@ -446,7 +508,6 @@ void page2(String stime) {
 
 void page3() {
   display.clearDisplay();
-  display.stopscroll();
   // ========================================= Line 1 show Wifi Icon color yellow
   display.setCursor(0, 0);
   display.setTextSize(2);
@@ -461,9 +522,30 @@ void page3() {
   display.display();
 }
 
+void page4() {
+  display.clearDisplay();
+  // ========================================= Line 1 show Wifi Icon color yellow
+  display.setCursor(26, 0);
+  display.setTextSize(2);
+  display.print("ERROR !"); // Show Error stat;
+  // ========================================= Line 1 show Wifi Icon color yellow
+  // ========================================= Line 1 Font 1 color yellow
+  display.drawBitmap(77, 16, warning, 50, 44, 1);
+  // ========================================= Line 1 Font 1 color yellow
+  // ========================================= Line 2 Font 2 color white
+  display.setCursor(1, 16);
+  display.setTextSize(2);
+  display.print("Recived"); // Show Error stat;
+  display.setCursor(10, 33);
+  display.print("light");
+  display.setCursor(0, 49);
+  display.print("Failed");
+  // ========================================= Line 2 Font 2 color white
+  display.display();
+}
+
 void firstboot() {
   showdisplay(0);
-  boot == true;
 }
 
 int wificonnection(String ssid, String password) {
@@ -491,8 +573,8 @@ int wificonnection(String ssid, String password) {
 
 void makeweb(int ltemp, int llight, int lhumid, int llighting, int lgetlight) {
   // set local variables ********************************************************************************************************
-  WiFiClient client = server.available();
-  server.begin();
+WiFiClient client = server.available();
+server.begin();
 
   // Check if a client has connected ********************************************************************************************
 
